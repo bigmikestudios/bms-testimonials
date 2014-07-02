@@ -17,15 +17,31 @@ $cr = "\r\n";
 
 // =============================================================================
 
-//////////////////////////
-//
-// INCLUDES
-//
-//////////////////////////
+function bms_pf_check_required_plugin() {
+    if ( class_exists( 'acf' ) || !is_admin() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+        return;
+    }
 
-//wp_register_style('bms_people', plugins_url() .'/bms_people/bms_people.css');
-//wp_enqueue_style('bms_people');
+    require_once ABSPATH . '/wp-admin/includes/plugin.php';
+    deactivate_plugins( __FILE__ );
 
+    $msg =  __( 'BMS Portfolio has been deactivated as it requires the <a href="http://www.advancedcustomfields.com/">Advanced Custom Fields</a> plugin.', 'bms_portfolio' ) . '<br /><br />';
+    
+    if ( file_exists( WP_PLUGIN_DIR . '/advanced-custom-fields/acf.php' ) ) {
+        $activate_url = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=advanced-custom-fields/acf.php', 'activate-plugin_advanced-custom-fields/acf.php' );
+        $msg .= sprintf( __( 'It appears to already be installed. <a href="%s">Click here to activate it.</a>', 'bms_portfolio' ), $activate_url );
+    }
+    else {
+        $download_url = 'http://downloads.wordpress.org/plugin/advanced-custom-fields.zip';
+        $msg .= sprintf( __( '<a href="%s">Click here to download a zip of the latest version.</a> Then install and activate it. ', 'bms_portfolio' ), $download_url );
+    }
+
+    $msg .= '<br /><br />' . __( 'Once it has been activated, you can activate BMS Portfolio.', 'bms_portfolio' );
+
+    wp_die( $msg );
+}
+
+add_action( 'plugins_loaded', 'bms_pf_check_required_plugin' );
 
 // =============================================================================
 
@@ -35,7 +51,6 @@ $cr = "\r\n";
 //
 //////////////////////////
 
-add_action( 'init', 'register_cpt_testimonial' );
 
 add_action( 'init', 'register_cpt_testimonial' );
 
@@ -79,58 +94,6 @@ function register_cpt_testimonial() {
 
     register_post_type( 'testimonial', $args );
 }
-
-// =============================================================================
-
-//////////////////////////
-//
-// ADD META BOX
-//
-//////////////////////////
-
-if (is_admin()) {
-	if (!class_exists('SmartMetaBox')) {
-		require_once(ABSPATH . "wp-content/plugins/bms-smart-meta-box/SmartMetaBox.php");
-	}
-			
-	new SmartMetaBox('quote', array(
-		'title'     => 'Quote',
-		'pages'     => array('testimonial'),
-		'context'   => 'normal',
-		'priority'  => 'high',
-		'fields'    => array(
-			array(
-				'name' => 'Quote',
-				'id' => 'quote',
-				'type' => 'textarea',
-			),
-			array(
-				'name' => 'Credit Name',
-				'id' => 'credit_name',
-				'type' => 'text',
-			),
-			array(
-				'name' => 'Credit Location',
-				'id' => 'credit_loc',
-				'type' => 'text',
-			),
-		)
-	));
-	
-}
-
-	
-// =============================================================================
-
-//////////////////////////
-//
-// ADD IMAGE SIZES
-//
-//////////////////////////
-
-//add_image_size( '75x75', 75, 75, true );
-//add_image_size( '150x9999', 150, 9999 );
-
 
 
 // =============================================================================
