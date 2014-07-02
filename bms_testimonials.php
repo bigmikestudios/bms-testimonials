@@ -17,7 +17,7 @@ $cr = "\r\n";
 
 // =============================================================================
 
-function bms_pf_check_required_plugin() {
+function bms_testimonial_check_required_plugin() {
     if ( class_exists( 'acf' ) || !is_admin() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
         return;
     }
@@ -41,7 +41,7 @@ function bms_pf_check_required_plugin() {
     wp_die( $msg );
 }
 
-add_action( 'plugins_loaded', 'bms_pf_check_required_plugin' );
+add_action( 'plugins_loaded', 'bms_testimonial_check_required_plugin' );
 
 // =============================================================================
 
