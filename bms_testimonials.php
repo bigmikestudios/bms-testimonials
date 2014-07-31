@@ -25,18 +25,18 @@ function bms_testimonial_check_required_plugin() {
     require_once ABSPATH . '/wp-admin/includes/plugin.php';
     deactivate_plugins( __FILE__ );
 
-    $msg =  __( 'BMS Portfolio has been deactivated as it requires the <a href="http://www.advancedcustomfields.com/">Advanced Custom Fields</a> plugin.', 'bms_portfolio' ) . '<br /><br />';
+    $msg =  __( 'BMS Testimonials has been deactivated as it requires the <a href="http://www.advancedcustomfields.com/">Advanced Custom Fields</a> plugin.', 'bms_testimonials' ) . '<br /><br />';
     
     if ( file_exists( WP_PLUGIN_DIR . '/advanced-custom-fields/acf.php' ) ) {
         $activate_url = wp_nonce_url( 'plugins.php?action=activate&amp;plugin=advanced-custom-fields/acf.php', 'activate-plugin_advanced-custom-fields/acf.php' );
-        $msg .= sprintf( __( 'It appears to already be installed. <a href="%s">Click here to activate it.</a>', 'bms_portfolio' ), $activate_url );
+        $msg .= sprintf( __( 'It appears to already be installed. <a href="%s">Click here to activate it.</a>', 'bms_testimonials' ), $activate_url );
     }
     else {
         $download_url = 'http://downloads.wordpress.org/plugin/advanced-custom-fields.zip';
-        $msg .= sprintf( __( '<a href="%s">Click here to download a zip of the latest version.</a> Then install and activate it. ', 'bms_portfolio' ), $download_url );
+        $msg .= sprintf( __( '<a href="%s">Click here to download a zip of the latest version.</a> Then install and activate it. ', 'bms_testimonials' ), $download_url );
     }
 
-    $msg .= '<br /><br />' . __( 'Once it has been activated, you can activate BMS Portfolio.', 'bms_portfolio' );
+    $msg .= '<br /><br />' . __( 'Once it has been activated, you can activate BMS Testimonials.', 'bms_testimonials' );
 
     wp_die( $msg );
 }
@@ -75,7 +75,7 @@ function register_cpt_testimonial() {
         'labels' => $labels,
         'hierarchical' => false,
         
-        'supports' => array( 'title'),
+        'supports' => array( 'title', 'editor'),
         
         'public' => true,
         'show_ui' => true,
@@ -95,48 +95,80 @@ function register_cpt_testimonial() {
     register_post_type( 'testimonial', $args );
 }
 
-
 // =============================================================================
 
-//////////////////////////
-//
-// SHORT CODES
-//
-//////////////////////////
-
-// create shortcode for listing:
-function bms_testimonial_listing($atts, $content=null) {
-	extract( shortcode_atts( array(
-		'foo' => 'something',
-		'bar' => 'something else',
-	), $atts ) );
-	
-	$return="<ul class='bms-people-listing'>";
-	$i = 0;
-	
-	// get posts
-	$args = array('post_type'=>'person', 'orderby'=>'menu_order', 'order'=>'ASC');
-	$my_posts = get_posts($args);
-	foreach($my_posts as $my_post) {
-		$img = get_post_meta($my_post->ID, '_smartmeta_bms_people_image', true);
-		$img = wp_get_attachment_image_src( $img, '75x75');
-		$img_src	=$img[0];
-		$img_width	=$img[1];
-		$img_height	=$img[2];	
-		
-		$title = get_post_meta($my_post->ID, '_smartmeta_bms_people_title', true);
-		
-		$return .= "<li class='bms-people person-".$my_post->ID."'>"."\r\n";
-		$return .= "<a href='".get_permalink($my_post->ID)."'>"."\r\n";
-		$return .= "<img src='$img_src' width='$img_width' height='$img_height' alt='image' />"."\r\n";
-		$return .= "<span class='bms-people-name'>".$my_post->post_title."</span> "."\r\n";
-		if (!empty($title)) $return .= "<span class='bms-people-title'>".$title."</span>"."\r\n";
-		$return .= "</a>"."\r\n";
-		$return .= "</li>"."\r\n";
-		$i++;
-	}
-	$return .="</ul>";
-	
-	return $return;
+if(function_exists("register_field_group"))
+{
+	register_field_group(array (
+		'id' => 'acf_testimonial-field-group',
+		'title' => 'Testimonial Field Group',
+		'fields' => array (
+			array (
+				'key' => 'field_53b45c35a796f',
+				'label' => 'Who said it?',
+				'name' => 'who',
+				'type' => 'text',
+				'default_value' => '',
+				'placeholder' => '',
+				'prepend' => '',
+				'append' => '',
+				'formatting' => 'html',
+				'maxlength' => '',
+			),
+			array (
+				'key' => 'field_53b45e57a7971',
+				'label' => 'What\'s their title?',
+				'name' => 'title',
+				'type' => 'text',
+				'default_value' => '',
+				'placeholder' => '',
+				'prepend' => '',
+				'append' => '',
+				'formatting' => 'html',
+				'maxlength' => '',
+			),
+			array (
+				'key' => 'field_53b45e47a7970',
+				'label' => 'Who do they work with?',
+				'name' => 'organization',
+				'type' => 'text',
+				'default_value' => '',
+				'placeholder' => '',
+				'prepend' => '',
+				'append' => '',
+				'formatting' => 'html',
+				'maxlength' => '',
+			),
+			array (
+				'key' => 'field_53b45e7da7972',
+				'label' => 'Do they have a website?',
+				'name' => 'company_url',
+				'type' => 'text',
+				'default_value' => '',
+				'placeholder' => '',
+				'prepend' => '',
+				'append' => '',
+				'formatting' => 'html',
+				'maxlength' => '',
+			),
+		),
+		'location' => array (
+			array (
+				array (
+					'param' => 'post_type',
+					'operator' => '==',
+					'value' => 'testimonial',
+					'order_no' => 0,
+					'group_no' => 0,
+				),
+			),
+		),
+		'options' => array (
+			'position' => 'normal',
+			'layout' => 'no_box',
+			'hide_on_screen' => array (
+			),
+		),
+		'menu_order' => 0,
+	));
 }
-
